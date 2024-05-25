@@ -1,9 +1,9 @@
 import React, { PureComponent } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 
-export const PendingView = () => (
+ const PendingView = () => (
   <View
     style={{
       flex: 1,
@@ -15,6 +15,16 @@ export const PendingView = () => (
     <Text>Waiting</Text>
   </View>
 );
+
+const DialogMessage = (title, msg) => {
+  Alert.alert(
+    title,
+    msg,
+    [
+      { text: "OK", onPress: () => console.log("OK Pressed") }
+    ]
+  );
+}
 
 export class CameraVision extends PureComponent {
   state = {
@@ -82,6 +92,7 @@ export class CameraVision extends PureComponent {
       const options = { quality: RNCamera.Constants.VideoQuality['480p'], path: `${RNFS.ExternalDirectoryPath}/video_${timestamp}.mp4` };
       const data = await camera.recordAsync(options);
       console.log(`Video saved at: ${data.uri}`);
+      DialogMessage('Video', `Video saved at: ${data.uri}`)
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
     }
@@ -98,10 +109,17 @@ export class CameraVision extends PureComponent {
   takePicture = async function (camera) {
     const timestamp = Date.now();
     this.state.isRecording =false
-    const options = { quality: 0.5, base64: true, path: `${RNFS.ExternalDirectoryPath}/photo_${timestamp}.jpg` };
+    const options = { 
+      quality: 0.5, 
+      base64: true, path: 
+      `${RNFS.ExternalDirectoryPath}/photo_${timestamp}.jpg` 
+    };
+    DialogMessage("Info", "picture save to : "+options.path)
     const data = await camera.takePictureAsync(options);
     console.log(`Photo saved at: ${data.uri}`);
   };
+
+ 
   
 }
 
