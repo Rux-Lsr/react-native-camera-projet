@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
+import RNFS from 'react-native-fs';
 
 export const PendingView = () => (
   <View
@@ -44,7 +45,8 @@ export class CameraVision extends PureComponent {
             return (
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
                   <TouchableOpacity
-                    onPressIn={() => this.startRecording(camera)}
+                    onPress={() => this.takePicture(camera)}
+                    onLongPress={() => this.startRecording(camera)}
                     onPressOut={() => this.stopRecording(camera)}
                     style={[
                       styles.capture,
@@ -63,13 +65,14 @@ export class CameraVision extends PureComponent {
   startRecording = async (camera) => {
     try {
       this.setState({ isRecording: true });
-      const options = { quality: RNCamera.Constants.VideoQuality['480p'] };
+      const options = { quality: RNCamera.Constants.VideoQuality['480p'], path: `${RNFS.ExternalDirectoryPath}/video.mp4` };
       const data = await camera.recordAsync(options);
-      console.log(data.uri);
+      console.log(`Video saved at: ${data.uri}`);
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
     }
   };
+  
 
   stopRecording = (camera) => {
     if (this.state.isRecording) {
@@ -79,11 +82,12 @@ export class CameraVision extends PureComponent {
   };
   
   takePicture = async function (camera) {
-    const options = { quality: 0.5, base64: true };
+    this.state.isRecording = false;
+    const options = { quality: 0.5, base64: true, path: `${RNFS.DocumentDirectoryPath}/photo.jpg` };
     const data = await camera.takePictureAsync(options);
-    //  eslint-disable-next-line
-    console.log(data.uri);
+    console.log(`Photo saved at: ${data.uri}`);
   };
+  
 }
 
 export const styles = StyleSheet.create({
