@@ -19,14 +19,24 @@ export const PendingView = () => (
 export class CameraVision extends PureComponent {
   state = {
     isRecording: false,
+    flashMode: RNCamera.Constants.FlashMode.off,
   };
+
+  toggleFlash = () => {
+    this.setState({
+      flashMode: this.state.flashMode === RNCamera.Constants.FlashMode.on
+        ? RNCamera.Constants.FlashMode.off
+        : RNCamera.Constants.FlashMode.on,
+    });
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <RNCamera
           style={styles.preview}
           type={RNCamera.Constants.Type.back}
-          flashMode={RNCamera.Constants.FlashMode.on}
+          flashMode={this.state.flashMode}
           androidCameraPermissionOptions={{
             title: 'Permission to use camera',
             message: 'We need your permission to use your camera',
@@ -43,18 +53,21 @@ export class CameraVision extends PureComponent {
           {({ camera, status }) => {
             if (status !== 'READY') return <PendingView />;
             return (
-              <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'center' }}>
-                  <TouchableOpacity
-                    onPress={() => this.takePicture(camera)}
-                    onLongPress={() => this.startRecording(camera)}
-                    onPressOut={() => this.stopRecording(camera)}
-                    style={[
-                      styles.capture,
-                      { backgroundColor: this.state.isRecording ? 'red' : '#fff' },
-                    ]}
-                  >
-                    <Text style={{ fontSize: 14 }}> SNAP </Text>
-                  </TouchableOpacity>
+              <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between' }}>
+                <TouchableOpacity onPress={this.toggleFlash} style={styles.flash}>
+                  <Text style={{ fontSize: 14, color: this.state.flashMode?'#fff':'yellow' }}>Flash</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={() => this.takePicture(camera)}
+                  onLongPress={() => this.startRecording(camera)}
+                  onPressOut={() => this.stopRecording(camera)}
+                  style={[
+                    styles.capture,
+                    { backgroundColor: this.state.isRecording ? 'red' : '#fff' },
+                  ]}
+                >
+                  <Text style={{ fontSize: 14 }}> {this.state.isRecording ? 'recording' : 'photo'} </Text>
+                </TouchableOpacity>
               </View>
             );
           }}
@@ -63,9 +76,10 @@ export class CameraVision extends PureComponent {
     );
   }
   startRecording = async (camera) => {
+    const timestamp = Date.now();
     try {
       this.setState({ isRecording: true });
-      const options = { quality: RNCamera.Constants.VideoQuality['480p'], path: `${RNFS.ExternalDirectoryPath}/video.mp4` };
+      const options = { quality: RNCamera.Constants.VideoQuality['480p'], path: `${RNFS.ExternalDirectoryPath}/video_${timestamp}.mp4` };
       const data = await camera.recordAsync(options);
       console.log(`Video saved at: ${data.uri}`);
     } catch (error) {
@@ -82,8 +96,9 @@ export class CameraVision extends PureComponent {
   };
   
   takePicture = async function (camera) {
-    this.state.isRecording = false;
-    const options = { quality: 0.5, base64: true, path: `${RNFS.DocumentDirectoryPath}/photo.jpg` };
+    const timestamp = Date.now();
+    this.state.isRecording =false
+    const options = { quality: 0.5, base64: true, path: `${RNFS.ExternalDirectoryPath}/photo_${timestamp}.jpg` };
     const data = await camera.takePictureAsync(options);
     console.log(`Photo saved at: ${data.uri}`);
   };
@@ -114,4 +129,5 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',  // Centrer le texte à l'intérieur du bouton
     alignItems: 'center',  // Centrer le texte à l'intérieur du bouton
   },
+  
 });
