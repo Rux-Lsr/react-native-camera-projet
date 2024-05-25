@@ -3,6 +3,9 @@ import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
 
+/**
+ * Component affiché lorsque la caméra n'est pas prête
+ */
  const PendingView = () => (
   <View
     style={{
@@ -16,7 +19,12 @@ import RNFS from 'react-native-fs';
   </View>
 );
 
-const DialogMessage = (title, msg) => {
+/**
+ * Affiche une boîte de dialogue avec un titre et un message
+ * @param {string} title - Le titre de la boîte de dialogue
+ * @param {string} msg - Le message de la boîte de dialogue
+ */
+const DialogMessage = (title : string, msg : string) => {
   Alert.alert(
     title,
     msg,
@@ -26,12 +34,15 @@ const DialogMessage = (title, msg) => {
   );
 }
 
+
 export class CameraVision extends PureComponent {
   state = {
     isRecording: false,
     flashMode: RNCamera.Constants.FlashMode.off,
   };
-
+/**
+   * Bascule entre les modes flash on et off
+   */
   toggleFlash = () => {
     this.setState({
       flashMode: this.state.flashMode === RNCamera.Constants.FlashMode.on
@@ -40,6 +51,9 @@ export class CameraVision extends PureComponent {
     });
   };
 
+   /**
+   * Bascule entre la caméra avant et arrière
+   */
   toggleCamera = () => { // Ajoutez une nouvelle fonction pour basculer le type de caméra
     this.setState({
       cameraType: this.state.cameraType === RNCamera.Constants.Type.back
@@ -97,7 +111,10 @@ export class CameraVision extends PureComponent {
     );
   }
   
-
+  /**
+   * Commence l'enregistrement d'une vidéo
+   * @param {object} camera - L'objet caméra de RNCamera
+   */
   startRecording = async (camera) => {
     const timestamp = Date.now();
     try {
@@ -111,7 +128,10 @@ export class CameraVision extends PureComponent {
     }
   };
   
-
+   /**
+   * Arrête l'enregistrement d'une vidéo
+   * @param {object} camera - L'objet caméra de RNCamera
+   */
   stopRecording = (camera) => {
     if (this.state.isRecording) {
       camera.stopRecording();
@@ -119,6 +139,10 @@ export class CameraVision extends PureComponent {
     }
   };
   
+  /**
+   * Prend une photo
+   * @param {object} camera - L'objet caméra de RNCamera
+   */
   takePicture = async function (camera) {
     const timestamp = Date.now();
     this.state.isRecording =false
@@ -132,8 +156,7 @@ export class CameraVision extends PureComponent {
     console.log(`Photo saved at: ${data.uri}`);
   };
 
- 
-  
+
 }
 
 export const styles = StyleSheet.create({
@@ -150,14 +173,14 @@ export const styles = StyleSheet.create({
   capture: {
     flex: 0,
     backgroundColor: '#fff',
-    borderRadius: 50,  // Bordures arrondies pour créer un cercle
+    borderRadius: 50,  
     padding: 15,
     paddingHorizontal: 20,
     alignSelf: 'center',
     margin: 20,
-    width: 100,  // Largeur fixe
-    height: 100,  // Hauteur fixe
-    justifyContent: 'center',  // Centrer le texte à l'intérieur du bouton
-    alignItems: 'center',  // Centrer le texte à l'intérieur du bouton
+    width: 100, 
+    height: 100,  
+    justifyContent: 'center', 
+    alignItems: 'center',  
   },
 });
