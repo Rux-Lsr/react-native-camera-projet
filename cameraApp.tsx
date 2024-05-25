@@ -40,17 +40,25 @@ export class CameraVision extends PureComponent {
     });
   };
 
+  toggleCamera = () => { // Ajoutez une nouvelle fonction pour basculer le type de caméra
+    this.setState({
+      cameraType: this.state.cameraType === RNCamera.Constants.Type.back
+        ? RNCamera.Constants.Type.front
+        : RNCamera.Constants.Type.back,
+    });
+  };
+
   render() {
     return (
       <View style={styles.container}>
         <RNCamera
           style={styles.preview}
-          type={RNCamera.Constants.Type.back}
+          type={this.state.cameraType} // Utilisez l'état cameraType pour définir le type de caméra
           flashMode={this.state.flashMode}
           androidCameraPermissionOptions={{
             title: 'Permission to use camera',
             message: 'We need your permission to use your camera',
-            buttonPositive: 'Oky',
+            buttonPositive: 'Ok',
             buttonNegative: 'Cancel',
           }}
           androidRecordAudioPermissionOptions={{
@@ -60,12 +68,12 @@ export class CameraVision extends PureComponent {
             buttonNegative: 'Cancel',
           }}
         >
-          {({ camera, status }) => {
+           {({ camera, status }) => {
             if (status !== 'READY') return <PendingView />;
             return (
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between' }}>
                 <TouchableOpacity onPress={this.toggleFlash} style={styles.flash}>
-                  <Text style={{ fontSize: 14, color: this.state.flashMode?'#fff':'yellow' }}>Flash</Text>
+                  <Text style={{ fontSize: 14, color: this.state.flashMode?'yellow':'#fff' }}>Flash</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   onPress={() => this.takePicture(camera)}
@@ -78,6 +86,9 @@ export class CameraVision extends PureComponent {
                 >
                   <Text style={{ fontSize: 14 }}> {this.state.isRecording ? 'recording' : 'photo'} </Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={this.toggleCamera} style={styles.toggleCamera}>
+                  <Text style={{ fontSize: 14, color: !(this.state.cameraType == RNCamera.Constants.Type.back) ?'#fff':'red' }}>change</Text>
+                </TouchableOpacity>
               </View>
             );
           }}
@@ -85,6 +96,8 @@ export class CameraVision extends PureComponent {
       </View>
     );
   }
+  
+
   startRecording = async (camera) => {
     const timestamp = Date.now();
     try {
@@ -147,5 +160,4 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',  // Centrer le texte à l'intérieur du bouton
     alignItems: 'center',  // Centrer le texte à l'intérieur du bouton
   },
-  
 });
