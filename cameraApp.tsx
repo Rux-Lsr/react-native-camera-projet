@@ -39,8 +39,9 @@ export class CameraVision extends PureComponent {
   state = {
     isRecording: false,
     flashMode: RNCamera.Constants.FlashMode.off,
+    cameraType: RNCamera.Constants.Type.back
   };
-/**
+  /**
    * Bascule entre les modes flash on et off
    */
   toggleFlash = () => {
@@ -64,6 +65,7 @@ export class CameraVision extends PureComponent {
 
   render() {
     return (
+      //Interface d'affichage 
       <View style={styles.container}>
         <RNCamera
           style={styles.preview}
@@ -82,13 +84,18 @@ export class CameraVision extends PureComponent {
             buttonNegative: 'Cancel',
           }}
         >
+          
            {({ camera, status }) => {
             if (status !== 'READY') return <PendingView />;
             return (
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between' }}>
-                <TouchableOpacity onPress={this.toggleFlash} style={styles.flash}>
+                {/* gerer le flash de la camera */}
+                <TouchableOpacity onPress={this.toggleFlash}>
                   <Text style={{ fontSize: 14, color: this.state.flashMode?'yellow':'#fff' }}>Flash</Text>
                 </TouchableOpacity>
+
+                {/* Gerer la capture */}
+
                 <TouchableOpacity
                   onPress={() => this.takePicture(camera)}
                   onLongPress={() => this.startRecording(camera)}
@@ -100,8 +107,11 @@ export class CameraVision extends PureComponent {
                 >
                   <Text style={{ fontSize: 14 }}> {this.state.isRecording ? 'recording' : 'photo'} </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={this.toggleCamera} style={styles.toggleCamera}>
-                  <Text style={{ fontSize: 14, color: !(this.state.cameraType == RNCamera.Constants.Type.back) ?'#fff':'red' }}>change</Text>
+
+                  {/* Changer le type de camera */}
+
+                <TouchableOpacity onPress={this.toggleCamera}>
+                  <Text style={{ fontSize: 14, color: this.state.cameraType == RNCamera.Constants.Type.back ?'#fff':'red' }}>change</Text>
                 </TouchableOpacity>
               </View>
             );
@@ -122,7 +132,9 @@ export class CameraVision extends PureComponent {
       const options = { quality: RNCamera.Constants.VideoQuality['480p'], path: `${RNFS.ExternalDirectoryPath}/video_${timestamp}.mp4` };
       const data = await camera.recordAsync(options);
       console.log(`Video saved at: ${data.uri}`);
-      DialogMessage('Video', `Video saved at: ${data.uri}`)
+      setTimeout(()=>{DialogMessage('Video', `Video saved at: ${data.uri}`)}, 1000)
+      refreshStorage(options.path)
+
     } catch (error) {
       console.error("Erreur lors de l'enregistrement :", error);
     }
@@ -151,15 +163,25 @@ export class CameraVision extends PureComponent {
       base64: true, path: 
       `${RNFS.ExternalDirectoryPath}/photo_${timestamp}.jpg` 
     };
-    DialogMessage("Info", "picture save to : "+options.path)
+    
     const data = await camera.takePictureAsync(options);
+    setTimeout(()=>DialogMessage("Info", "picture save to : "+options.path), 1000)
     console.log(`Photo saved at: ${data.uri}`);
+    refreshStorage(options.path)
   };
-
 
 }
 
-export const styles = StyleSheet.create({
+function refreshStorage(uri:string): void{
+  RNFS.scanFile(uri)
+  .then(() => {
+    console.log('Scanned photo file');
+  })
+  .catch((err) => {
+    console.log('Cannot scan photo file', err);
+  });
+}
+ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
