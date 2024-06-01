@@ -1,8 +1,11 @@
 import React, { PureComponent } from 'react';
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import RNFS from 'react-native-fs';
-
+const icons ={
+  flash :  require('./flash.png'),
+  camera_switch:  require('./camera_switch.png')
+}
 /**
  * Component affiché lorsque la caméra n'est pas prête
  */
@@ -91,7 +94,7 @@ export class CameraVision extends PureComponent {
               <View style={{ flex: 0, flexDirection: 'row', justifyContent: 'space-between' }}>
                 {/* gerer le flash de la camera */}
                 <TouchableOpacity onPress={this.toggleFlash}>
-                  <Text style={{ fontSize: 14, color: this.state.flashMode?'yellow':'#fff' }}>Flash</Text>
+                  <View style={{backgroundColor:this.state.flashMode? 'rgba(255, 255, 0, 0.5)':'transparent', flexDirection:'row', justifyContent:this.state.flashMode?'flex-end':'',borderRadius:10, width:40,}}><Image source={icons.flash} style={[styles.icon]}/></View>
                 </TouchableOpacity>
 
                 {/* Gerer la capture */}
@@ -111,7 +114,7 @@ export class CameraVision extends PureComponent {
                   {/* Changer le type de camera */}
 
                 <TouchableOpacity onPress={this.toggleCamera}>
-                  <Text style={{ fontSize: 14, color: this.state.cameraType == RNCamera.Constants.Type.back ?'#fff':'red' }}>change</Text>
+                  <View style={{backgroundColor:this.state.cameraType? 'rgba(0, 0, 150, 0.5)':'transparent', flexDirection:'row', justifyContent:this.state.cameraType?'flex-end':'',borderRadius:10, width:40,}}><Image source={icons.camera_switch} style={styles.icon}/></View>
                 </TouchableOpacity>
               </View>
             );
@@ -205,4 +208,8 @@ function refreshStorage(uri:string): void{
     justifyContent: 'center', 
     alignItems: 'center',  
   },
+  icon:{
+    width:20,
+    height:30,
+  }
 });
